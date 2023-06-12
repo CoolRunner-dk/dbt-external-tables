@@ -2,7 +2,7 @@
 
     CREATE TASK IF NOT EXISTS {{ source_node.source_name }}_TSK
     USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE = 'XSMALL'
-    SCHEDULE = '{{ source_node.meta.task_schedule }}'
+    SCHEDULE = '{{ source_node.source_meta.task_schedule }}'
     {% if target.name == 'prod' %}
     SUSPEND_TASK_AFTER_NUM_FAILURES = 1
     ERROR_INTEGRATION = CR_NI_AWS_ERROR
