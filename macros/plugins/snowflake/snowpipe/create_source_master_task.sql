@@ -22,10 +22,11 @@
     AS
     SELECT NULL;
 
-    {% if target.name == 'prod' %}
-    -- RESUME tasks if production
-    ALTER TASK {{ source(source_node.source_name, source_node.name).include(identifier=false) }}.MASTER_TSK RESUME;
+    -- RESUME task (since DAG makes sure it doesn't run in dev anyway)
     ALTER TASK {{ source(source_node.source_name, source_node.name) }}_TSK RESUME;
+    {% if target.name == 'prod' %}
+    -- RESUME master task if production
+    ALTER TASK {{ source(source_node.source_name, source_node.name).include(identifier=false) }}.MASTER_TSK RESUME;
     {% endif -%}
 
 {% endmacro %}
