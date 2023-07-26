@@ -16,9 +16,9 @@
     ALTER TASK {{ source(source_node.source_name, source_node.name).include(identifier=false) }}.MASTER_TSK SUSPEND;
 
     /* Create child master setup of stream and task (1 sub-master per source table) */
-    -- Create child stream
+    -- Create child stream based on child table
     CREATE OR REPLACE STREAM {{ source(source_node.source_name, source_node.name) }}_STR ON TABLE {{ source(source_node.source_name, source_node.name) }} APPEND_ONLY = true;
-    -- Create child task
+    -- Create child task which only runs when stream on child table has data. Consumes stream when runned.
     CREATE OR REPLACE TASK {{ source(source_node.source_name, source_node.name) }}_TSK
     USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE = 'XSMALL'
     COMMENT = "Sub Master task for {{ source(source_node.source_name, source_node.name) }}. Is starting point for all tasks dependent on this source table unless overwritten explicitly."
