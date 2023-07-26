@@ -15,13 +15,24 @@
     -- SUSPEND master task before adding a child task
     ALTER TASK {{ source(source_node.source_name, source_node.name).include(identifier=false) }}.MASTER_TSK SUSPEND;
 
-    -- Create child master (1 sub-master per source table)
+    /* Create child master setup of stream and task (1 sub-master per source table) */
+    -- Create child stream
+    CREATE OR REPLACE STREAM {{ source(source_node.source_name, source_node.name) }}_STR ON TABLE {{ source(source_node.source_name, source_node.name) }} APPEND_ONLY = true;
+    -- Create child task
     CREATE OR REPLACE TASK {{ source(source_node.source_name, source_node.name) }}_TSK
     USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE = 'XSMALL'
     COMMENT = "Sub Master task for {{ source(source_node.source_name, source_node.name) }}. Is starting point for all tasks dependent on this source table unless overwritten explicitly."
     AFTER {{ source(source_node.source_name, source_node.name).include(identifier=false) }}.MASTER_TSK
+    WHEN -- Only execute if stream has data
+    SYSTEM$STREAM_HAS_DATA('{{ source(source_node.source_name, source_node.name) }}_STR')
     AS
-    SELECT NULL;
+    -- Consume stream to temporary table to reset stream
+    CREATE OR REPLACE TEMPORARY TABLE {{ source(source_node.source_name, source_node.name) }}_STR_RESET
+    AS
+    SELECT *
+    FROM {{ source(source_node.source_name, source_node.name) }}_STR
+    WHERE 1=2 -- avoid actually storing anything
+    ;
 
     -- RESUME child master task (since DAG makes sure it doesn't run in dev anyway)
     ALTER TASK {{ source(source_node.source_name, source_node.name) }}_TSK RESUME;
