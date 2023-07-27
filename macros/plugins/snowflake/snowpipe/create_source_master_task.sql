@@ -10,9 +10,7 @@
     {% endif %}
     COMMENT = "Master task for {{ source(source_node.source_name, source_node.name).include(identifier=false) }}. Is starting point for all tasks in schema unless overwritten explicitly."
     AS
-    BEGIN
-        SELECT NULL;
-    END;
+    SELECT NULL;
 
     /* Create child master setup of stream and task (1 sub-master per source table) */
     -- Create child stream based on child table.
@@ -28,6 +26,8 @@
     WHEN -- Only execute if stream has data
     SYSTEM$STREAM_HAS_DATA('{{ source(source_node.source_name, source_node.name) }}_STR')
     AS
+    EXECUTE IMMEDIATE
+    $$
     BEGIN
         -- Consume stream to temporary table to reset stream
         CREATE OR REPLACE TEMPORARY TABLE {{ source(source_node.source_name, source_node.name) }}_STR_RESET
@@ -37,6 +37,7 @@
         WHERE 1=2 -- avoid actually storing anything
         ;
     END;
+    $$;
 
     -- RESUME child master task (since DAG makes sure it doesn't run in dev anyway)
     ALTER TASK {{ source(source_node.source_name, source_node.name) }}_TSK RESUME;
