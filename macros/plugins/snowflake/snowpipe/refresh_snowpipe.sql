@@ -13,7 +13,7 @@
         alter pipe {{source(source_node.source_name, source_node.name)}} refresh
         {% endset %}
 
-        {{ return(ddl) }}
+        {{ return([ddl]) }}
 
     {% endif %}
 

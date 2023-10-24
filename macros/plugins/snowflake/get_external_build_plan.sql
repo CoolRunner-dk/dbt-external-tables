@@ -22,9 +22,8 @@
             ] %}
         {% else %}
             {% set build_plan = build_plan + [
-                dbt_external_tables.snowflake_create_source_master_task(source_node),
-                dbt_external_tables.snowflake_refresh_snowpipe(source_node)
-            ] %}
+                dbt_external_tables.snowflake_create_source_master_task(source_node)
+            ] + dbt_external_tables.snowflake_refresh_snowpipe(source_node) %}
         {% endif %}
 
     {% else %}
