@@ -12,7 +12,8 @@
         {% endif %}
         rsrc string not null,
         file_row_seq number not null,
-        rldts timestamp not null
+        rldts timestamp not null,
+        pipe_file_last_modified timestamp not null
     );
 
 {% endmacro %}
