@@ -34,7 +34,7 @@
         AS
         SELECT *
         FROM {{ source(source_node.source_name, source_node.name) }}_STR
-        WHERE 1=2 -- avoid actually storing anything
+        WHERE FALSE -- avoid actually storing anything
         ;
     END;
     $$;
